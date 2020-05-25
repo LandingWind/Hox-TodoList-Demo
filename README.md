@@ -2,7 +2,7 @@
 
 Demo of **React** and **Hox**
 
-Sister demo of [Recoil-Todolist-Demo](https://github.com/wkk5194/Hox-TodoList-Demo)
+Sister demo of [Recoil-Todolist-Demo](https://github.com/wkk5194/Recoil-TodoList-Demo)
 
 ```bash
 // just npm i and npm start
