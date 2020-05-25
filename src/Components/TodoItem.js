@@ -1,50 +1,19 @@
 import React from 'react';
-import { useSetRecoilState, useRecoilValue } from 'recoil';
-import { listDataState } from '../store';
-import { List, Map } from 'immutable';
-
+import useTodoModel from '../Model/useTodoModel'
 import './TodoItem.css'
 
-function cstrTodoItem(id, label, visible = true, isDone = false) {
-    return {
-        id,
-        label,
-        visible,
-        isDone
-    }
-}
-function getNewListData(id, listData) {
-    const list = List(listData);
-    return list.update(
-        list.findIndex((value,_)=>value.id===id),
-        (item)=>{
-            return {...item, isDone: !item.isDone}
-        }
-    );
-}
-
-function delFromListData(id, listData) {
-    return listData.filter(item => item.id !== id);
-}
-
 function TodoBtn(id, isDone) {
-    const listData = useRecoilValue(listDataState);
-    const setListDataState = useSetRecoilState(listDataState);
-
+    const { delTodo, toggleTodo } = useTodoModel();
     const type = !isDone ? "done" : "redo"
     return (
         <span style={{ marginLeft: 30 }}>
-            <button onClick={() => {
-                setListDataState(getNewListData(id, listData))
-            }}>{type}</button>
-            <button onClick={() => {
-                setListDataState(delFromListData(id, listData))
-            }}>del</button>
+            <button onClick={() => { toggleTodo(id) }}>{type}</button>
+            <button onClick={() => { delTodo(id) }}>del</button>
         </span>
     )
 }
 function TodoItem(props) {
-    const { id, label, visible, isDone } = props.itemdata;
+    const { id, label, isDone } = props.itemdata;
     return (
         <div className="item">
             <div>
@@ -58,6 +27,5 @@ function TodoItem(props) {
 }
 
 export {
-    TodoItem,
-    cstrTodoItem
+    TodoItem
 }

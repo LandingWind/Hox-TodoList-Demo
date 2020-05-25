@@ -1,45 +1,32 @@
-import React, { useState } from "react";
-import { TodoItem, cstrTodoItem } from './TodoItem';
-import { useRecoilState, useRecoilValue, useRecoilValueLoadable } from 'recoil';
-import {
-    listDataState,
-    filteredListState,
-    filterState,
-    queryListDataState
-} from '../store';
+import React, { useState, useEffect, useCallback } from "react";
+import { TodoItem } from './TodoItem';
+import useTodoModel from '../Model/useTodoModel'
 import md5 from 'blueimp-md5'
+import axios from 'axios'
 
 import './TodoList.css'
 
 function TodoList() {
-
-    const [listData, setListData] = useRecoilState(listDataState);
+    const { todos, filter, addTodo, setFilter, setTodos } = useTodoModel();
     const [inputData, setInputData] = useState("");
-    const [filter, setFilter] = useRecoilState(filterState);
-    const filteredListData = useRecoilValue(filteredListState);
-
-    const queryListData = useRecoilValueLoadable(queryListDataState);
-    if(queryListData.state === "hasValue") {
-        setListData(queryListData.getValue())
-    }
+    const fetchData = useCallback(async () => {
+        const { data } = await axios.get('/remotelistdata');
+        setTodos(data.data)
+    },[setTodos])
     
+    useEffect(() => {
+        fetchData()
+    },[fetchData])
+
     return (
-        <div className="list">
+        <div className="todolist">
             <ul>
-                {filteredListData.map((item, index) => {
+                {todos.map((item, index) => {
                     return (
                         <li key={index + md5(item.label)}><TodoItem itemdata={item} /></li>
                     )
                 })}
             </ul>
-            {/* <h4>Todos From Server:</h4>
-            <ul>
-                {queryListData.state === "hasValue" ? queryListData.getValue().map((item, index) => {
-                    return (
-                        <li key={index + md5(item.label)}><TodoItem itemdata={item} /></li>
-                    )
-                }):null}
-            </ul> */}
             <div>
                 <span>
                     <input
@@ -47,11 +34,7 @@ function TodoList() {
                         onChange={(value) => setInputData(value.target.value)}
                         placeholder="todo...">
                     </input>
-                    <button onClick={() => {
-                        const newListData = [...listData, cstrTodoItem(md5(inputData), inputData)];
-                        setListData(newListData);
-                        setInputData("");
-                    }}>Add</button>
+                    <button onClick={() => { addTodo(inputData) }}>Add</button>
                 </span>
                 <select value={filter} onChange={({ target: { value } }) => setFilter(value)}>
                     <option value="all">All</option>
